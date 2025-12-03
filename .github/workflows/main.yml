@@ -1,0 +1,26 @@
+name: Release Creation
+
+on: 
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Zip the module
+      run: |
+        zip -r module.zip . -x "*.git*" ".github*" "node_modules*"
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        name: Release ${{ github.ref_name }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: './module.json, ./module.zip'
+        tag: ${{ github.ref_name }}
+        body: "Автоматическое обновление модуля."
