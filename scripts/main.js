@@ -8,7 +8,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
         if (tokenGroup && tokenGroup.tools) {
             tokenGroup.tools.sceneslibrary = {
                 name: "sceneslibrary",
-                title: "Библиотека Сцен",
+                title: game.i18n.localize("SCENESLIBRARY.Title"),
                 icon: "fas fa-map",
                 visible: true,
                 button: true,
@@ -22,7 +22,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
         if (tokenGroup) {
             tokenGroup.tools.push({
                 name: "sceneslibrary",
-                title: "Навигатор Сцен",
+                title: game.i18n.localize("SCENESLIBRARY.Navigator"),
                 icon: "fas fa-map-marked-alt",
                 visible: true,
                 button: true,
