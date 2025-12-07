@@ -57,6 +57,7 @@ Install link: https://github.com/ARubyQ/scenes-library/releases/latest/download/
 ---
 
 [t.me/rubyq_podelki](https://t.me/rubyq_podelki)
+
 <img width="529" height="560" alt="image" src="https://github.com/user-attachments/assets/8bc7c1d2-f9cf-439b-85d2-177052bfff5d" />
 
 <img width="862" height="578" alt="image" src="https://github.com/user-attachments/assets/c9a1e185-78d8-4093-9c87-e903a91d681d" />
