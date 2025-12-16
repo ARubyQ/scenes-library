@@ -1,5 +1,7 @@
 # Scenes Library
 
+https://img.shields.io/github/downloads/ARubyQ/scenes-library/
+
 ## English
 
 **Scenes Library** is a powerful and convenient scene browser module for Foundry VTT that enhances scene management with an intuitive interface and advanced features.
