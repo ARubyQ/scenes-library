@@ -1,6 +1,6 @@
 # Scenes Library
 
-https://img.shields.io/github/downloads/ARubyQ/scenes-library/
+https://img.shields.io/github/downloads/ARubyQ/scenes-library/total
 
 ## English
 
