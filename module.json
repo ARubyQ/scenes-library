@@ -1,0 +1,45 @@
+{
+  "id": "scenes-library",
+  "title": "Scenes Library",
+  "version": "1.2.0",
+  "authors": [
+    {
+      "name": "ARubyQ",
+      "discord": "rubyq",
+      "url": "https://t.me/rubyq_podelki",
+      "twitter": "",
+      "patreon": "",
+      "github": "ARubyQ",
+      "ko-fi": "",
+      "reddit": "",
+      "email": ""
+    }
+  ],
+  "compatibility": {
+    "minimum": "12",
+    "verified": "13"
+  },
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "languages/ru.json"
+    }
+  ],
+  "esmodules": [
+    "scripts/ScenesLibrary.js",
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/scenes-library.css"
+  ],
+  
+  "url": "https://github.com/ARubyQ/scenes-library",
+  "manifest": "https://github.com/ARubyQ/scenes-library/releases/latest/download/module.json",
+  "download": "https://github.com/ARubyQ/scenes-library/releases/latest/download/module.zip"
+}
