@@ -20,6 +20,17 @@
   - File picker for local files
 - **Advanced Viewing**: Toggle between thumbnail previews and full background images for better scene visualization
 - **Smart Search**: Real-time search for both folders and scenes with instant filtering
+  - Search by tags using `#tag` syntax
+  - Search by name using `$name` syntax
+  - Combine multiple tags: `#tag1 #tag2` to find scenes with all specified tags
+  - Autocomplete suggestions for tags in search bar
+- **Tag System**: Organize scenes with custom tags
+  - Add and remove tags from scenes
+  - Toggle tag visibility on scene cards
+  - Tag autocomplete in search and tag editor
+- **Pagination Mode**: Switch between scroll view and paginated view (12 scenes per page)
+  - Navigate through pages with previous/next buttons
+  - Works seamlessly with search and filtering
 - **Folder Management**: Create, rename, color-code, and organize folders with drag-and-drop support
 - **Visual Indicators**: See at a glance which scenes are active, in navigation, have grids, token vision enabled, or are already imported
 - **Optimized**: Lazy loading and optimized rendering for smooth browsing even with large scene collections
@@ -27,6 +38,11 @@
 ### Installation
 
 Install link: https://github.com/ARubyQ/scenes-library/releases/latest/download/module.json
+
+### Known Issues
+
+- **Compendium Folder Names**: Folder names in compendiums may not match the actual folder names and are displayed as "Folder 1", "Folder 2", etc. This is due to limitations in how compendium folder data is accessed. If you know how to solve this problem, please contact me on Discord @rubyq
+- **Compendium Folder Import**: When importing scenes from compendiums, the folder structure is not imported. Scenes are imported into a single folder named after the compendium, regardless of their original folder organization in the compendium.
 
 ---
 
@@ -48,6 +64,17 @@ Install link: https://github.com/ARubyQ/scenes-library/releases/latest/download/
   - Файлового проводника для локальных файлов
 - **Расширенный просмотр**: Переключение между миниатюрами и полными фонами для лучшей визуализации сцен
 - **Умный поиск**: Поиск в реальном времени по папкам и сценам с мгновенной фильтрацией
+  - Поиск по тегам с использованием синтаксиса `#тег`
+  - Поиск по названию с использованием синтаксиса `$название`
+  - Комбинирование нескольких тегов: `#тег1 #тег2` для поиска сцен со всеми указанными тегами
+  - Автодополнение тегов в строке поиска
+- **Система тегов**: Организация сцен с помощью пользовательских тегов
+  - Добавление и удаление тегов у сцен
+  - Переключение видимости тегов на карточках сцен
+  - Автодополнение тегов в поиске и редакторе тегов
+- **Режим пагинации**: Переключение между режимом прокрутки и постраничным просмотром (12 сцен на странице)
+  - Навигация по страницам с помощью кнопок предыдущая/следующая
+  - Работает совместно с поиском и фильтрацией
 - **Управление папками**: Создание, переименование, цветовая маркировка и организация папок с поддержкой drag-and-drop
 - **Визуальные индикаторы**: С первого взгляда видно, какие сцены активны, в навигации, имеют сетку, включено зрение токенов или уже импортированы
 - **Оптимизировация**: Ленивая загрузка и оптимизированный рендеринг для плавного просмотра даже с большими коллекциями сцен
@@ -56,9 +83,12 @@ Install link: https://github.com/ARubyQ/scenes-library/releases/latest/download/
 
 Ссылка для установки: https://github.com/ARubyQ/scenes-library/releases/latest/download/module.json
 
----
+### Известные проблемы
 
-[t.me/rubyq_podelki](https://t.me/rubyq_podelki)
+- **Имена папок в компендиумах**: Имена папок в компендиумах могут не соответствовать реальным именам и отображаются как "Folder 1", "Folder 2" и т.д. Это связано с ограничениями в доступе к данным папок компендиумов. Если вы знаете, как решить эту проблему, напишите мне в Discord @rubyq
+- **Импорт папок компендиумов**: При импорте сцен из компендиумов структура папок не импортируется. Сцены импортируются в одну папку с названием компендиума, независимо от их исходной организации в компендиуме.
+
+---
 
 <img width="529" height="560" alt="image" src="https://github.com/user-attachments/assets/8bc7c1d2-f9cf-439b-85d2-177052bfff5d" />
 
@@ -68,6 +98,23 @@ Install link: https://github.com/ARubyQ/scenes-library/releases/latest/download/
 ---
 
 ### Changelog
+
+#### Version 1.3.0
+
+**Tag System:**
+- Added comprehensive tag system for scene organization
+- Tag-based search with `#tag` syntax
+- Name-based search with `$name` syntax
+- Multiple tag search support
+- Tag autocomplete in search bar and tag editor
+- Toggle tag visibility on scene cards
+- Incremental tag caching for performance
+
+**Pagination Mode:**
+- Added pagination mode toggle (12 scenes per page)
+- Page navigation with previous/next buttons
+- Seamless integration with search functionality
+
 
 #### Version 1.2.0
 
@@ -101,6 +148,22 @@ Install link: https://github.com/ARubyQ/scenes-library/releases/latest/download/
 - Improved folder deletion dialog with option to delete folder contents
 
 ## История изменений
+
+### Версия 1.3.0
+
+**Система тегов:**
+- Добавлена комплексная система тегов для организации сцен
+- Поиск по тегам с синтаксисом `#тег`
+- Поиск по названию с синтаксисом `$название`
+- Поддержка поиска по нескольким тегам
+- Автодополнение тегов в строке поиска и редакторе тегов
+- Переключение видимости тегов на карточках сцен
+- Инкрементальное кэширование тегов для производительности
+
+**Режим пагинации:**
+- Добавлен переключатель режима пагинации (12 сцен на странице)
+- Навигация по страницам с кнопками предыдущая/следующая
+- Интеграция с функцией поиска
 
 ### Версия 1.2.0
 

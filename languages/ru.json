@@ -7,7 +7,7 @@
     "SCENESLIBRARY.Unsorted": "Неразобранное",
     "SCENESLIBRARY.Recent": "Недавно импортированные",
     "SCENESLIBRARY.SearchFolders": "Поиск папок...",
-    "SCENESLIBRARY.SearchScenes": "Поиск сцен...",
+    "SCENESLIBRARY.SearchScenes": "Поиск сцен... (#тег, $название)",
     "SCENESLIBRARY.CreateFolder": "Новая папка",
     "SCENESLIBRARY.Rename": "Переименовать",
     "SCENESLIBRARY.FolderColor": "Цвет папки",
@@ -72,5 +72,16 @@
     "SCENESLIBRARY.DeleteFolderTitle": "Удаление папки",
     "SCENESLIBRARY.DeleteFolderConfirm": "Удалить папку \"<strong>{name}</strong>\"?",
     "SCENESLIBRARY.DeleteContents": "Также удалить все сцены внутри",
-    "SCENESLIBRARY.Navigator": "Навигатор Сцен"
+    "SCENESLIBRARY.Navigator": "Навигатор Сцен",
+    "SCENESLIBRARY.EditTags": "Редактировать теги",
+    "SCENESLIBRARY.EditTagsTitle": "Теги сцены: {name}",
+    "SCENESLIBRARY.TagsLabel": "Теги:",
+    "SCENESLIBRARY.TagsPlaceholder": "тег1, тег2, тег3",
+    "SCENESLIBRARY.AddTagPlaceholder": "Введите тег и нажмите Enter",
+    "SCENESLIBRARY.TagsHint": "Нажмите Enter для добавления тега. Можно вводить несколько тегов через запятую. Используйте #тег для поиска только по тегам, $текст для поиска только по названиям",
+    "SCENESLIBRARY.ShowTags": "Показать теги",
+    "SCENESLIBRARY.HideTags": "Скрыть теги",
+    "SCENESLIBRARY.EnablePagination": "Включить пагинацию",
+    "SCENESLIBRARY.DisablePagination": "Выключить пагинацию",
+    "SCENESLIBRARY.PageInfo": "Страница {current} из {total}"
 }

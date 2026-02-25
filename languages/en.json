@@ -7,7 +7,7 @@
     "SCENESLIBRARY.Unsorted": "Unsorted",
     "SCENESLIBRARY.Recent": "Recently Imported",
     "SCENESLIBRARY.SearchFolders": "Search folders...",
-    "SCENESLIBRARY.SearchScenes": "Search scenes...",
+    "SCENESLIBRARY.SearchScenes": "Search scenes... (#tag, $name)",
     "SCENESLIBRARY.CreateFolder": "New Folder",
     "SCENESLIBRARY.Rename": "Rename",
     "SCENESLIBRARY.FolderColor": "Folder Color",
@@ -72,5 +72,16 @@
     "SCENESLIBRARY.DeleteFolderTitle": "Delete Folder",
     "SCENESLIBRARY.DeleteFolderConfirm": "Delete folder \"<strong>{name}</strong>\"?",
     "SCENESLIBRARY.DeleteContents": "Also delete all scenes inside",
-    "SCENESLIBRARY.Navigator": "Scenes Navigator"
+    "SCENESLIBRARY.Navigator": "Scenes Navigator",
+    "SCENESLIBRARY.EditTags": "Edit Tags",
+    "SCENESLIBRARY.EditTagsTitle": "Scene Tags: {name}",
+    "SCENESLIBRARY.TagsLabel": "Tags:",
+    "SCENESLIBRARY.TagsPlaceholder": "tag1, tag2, tag3",
+    "SCENESLIBRARY.AddTagPlaceholder": "Enter tag and press Enter",
+    "SCENESLIBRARY.TagsHint": "Press Enter to add a tag. You can enter multiple tags separated by commas. Use #tag to search only by tags, $text to search only by names",
+    "SCENESLIBRARY.ShowTags": "Show Tags",
+    "SCENESLIBRARY.HideTags": "Hide Tags",
+    "SCENESLIBRARY.EnablePagination": "Enable Pagination",
+    "SCENESLIBRARY.DisablePagination": "Disable Pagination",
+    "SCENESLIBRARY.PageInfo": "Page {current} of {total}"
 }
