@@ -19,7 +19,9 @@
   - Clipboard images (paste with Ctrl+V or use the paste button)
   - File picker for local files
 - **Advanced Viewing**: Toggle between thumbnail previews and full background images for better scene visualization
+- **Module settings**: Settings button in the sidebar footer (gear icon) opens a dialog where you can **disable recursive folder view** (show only scenes in the selected folder, not in nested subfolders). Recursive view is on by default.
 - **Smart Search**: Real-time search for both folders and scenes with instant filtering
+  - When a folder is selected (world or compendium), scenes in **nested subfolders** are included by default in the gallery and in search results; turn this off in module settings if you prefer a flat folder scope
   - Search by tags using `#tag` syntax
   - Search by name using `$name` syntax
   - Combine multiple tags: `#tag1 #tag2` to find scenes with all specified tags
@@ -54,6 +56,14 @@ Install link: https://github.com/ARubyQ/scenes-library/releases/latest/download/
 ---
 
 ### Changelog
+
+#### Version 1.3.1
+
+**Folder scope:**
+- Selecting a folder (including a compendium pack) now includes all scenes in that folder’s subfolders recursively, so search and browsing work across nested structures
+
+**Module settings:**
+- Settings button in the sidebar footer; optional **non-recursive** folder scope (only scenes directly in the selected folder)
 
 #### Version 1.3.0
 

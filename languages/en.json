@@ -83,5 +83,9 @@
     "SCENESLIBRARY.HideTags": "Hide Tags",
     "SCENESLIBRARY.EnablePagination": "Enable Pagination",
     "SCENESLIBRARY.DisablePagination": "Disable Pagination",
-    "SCENESLIBRARY.PageInfo": "Page {current} of {total}"
+    "SCENESLIBRARY.PageInfo": "Page {current} of {total}",
+    "SCENESLIBRARY.ModuleSettings": "Settings",
+    "SCENESLIBRARY.ModuleSettingsTooltip": "Module settings",
+    "SCENESLIBRARY.SettingsDialogTitle": "Scenes Library — Settings",
+    "SCENESLIBRARY.RecursiveSubfolderScenes": "Include scenes from subfolders when a folder is selected"
 }

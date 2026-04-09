@@ -83,5 +83,9 @@
     "SCENESLIBRARY.HideTags": "Скрыть теги",
     "SCENESLIBRARY.EnablePagination": "Включить пагинацию",
     "SCENESLIBRARY.DisablePagination": "Выключить пагинацию",
-    "SCENESLIBRARY.PageInfo": "Страница {current} из {total}"
+    "SCENESLIBRARY.PageInfo": "Страница {current} из {total}",
+    "SCENESLIBRARY.ModuleSettings": "Настройки",
+    "SCENESLIBRARY.ModuleSettingsTooltip": "Настройки модуля",
+    "SCENESLIBRARY.SettingsDialogTitle": "Библиотека сцен — настройки",
+    "SCENESLIBRARY.RecursiveSubfolderScenes": "Показывать сцены из вложенных папок при выборе папки"
 }

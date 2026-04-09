@@ -58,6 +58,16 @@
 .sb-tree::-webkit-scrollbar, .gl-grid::-webkit-scrollbar { width: 8px; background: #111; }
 .sb-tree::-webkit-scrollbar-thumb, .gl-grid::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
 
+.sl-settings-form { padding: 4px 0; }
+.sl-settings-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    line-height: 1.35;
+}
+.sl-settings-check input { margin-top: 3px; flex-shrink: 0; }
+
 .sb-row {
     display: flex; align-items: center; padding: 6px 4px 6px 0;
     cursor: pointer; border-left: 3px solid transparent;

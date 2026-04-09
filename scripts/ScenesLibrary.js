@@ -24,6 +24,7 @@ export class ScenesLibrary extends Application {
         this.showTags = this._loadShowTags();
         
         this.usePagination = this._loadUsePagination();
+        this.recursiveFolderView = this._loadRecursiveFolderView();
         this.currentPage = 1;
         this.scenesPerPage = 12;
 
@@ -106,6 +107,12 @@ export class ScenesLibrary extends Application {
     
     _loadUsePagination() { return game.user.getFlag("world", "gmSceneObserverUsePagination") || false; }
     async _saveUsePagination(value) { await game.user.setFlag("world", "gmSceneObserverUsePagination", value); }
+
+    _loadRecursiveFolderView() {
+        const v = game.user.getFlag("world", "gmSceneObserverRecursiveFolderView");
+        return v !== false;
+    }
+    async _saveRecursiveFolderView(value) { await game.user.setFlag("world", "gmSceneObserverRecursiveFolderView", value); }
     
     getSceneTags(sceneId) {
         const scene = game.scenes.get(sceneId);
@@ -370,15 +377,26 @@ export class ScenesLibrary extends Application {
                         });
                         
                         if (isCompendiumFolder && targetFolderId) {
-                            scenes = scenes.filter(s => {
-                                if (s.folder.startsWith(`compendium-${pack.collection}-`)) {
-                                    const sceneFolderId = s.folder.replace(`compendium-${pack.collection}-`, "");
-                                    return sceneFolderId === targetFolderId;
-                                }
-                                return false;
-                            });
+                            if (this.recursiveFolderView) {
+                                const rootSynth = `compendium-${pack.collection}-${targetFolderId}`;
+                                const allowed = this._collectDescendantFolderIds(rootSynth, allFolders);
+                                scenes = scenes.filter(s => allowed.has(s.folder));
+                            } else {
+                                scenes = scenes.filter(s => {
+                                    if (s.folder.startsWith(`compendium-${pack.collection}-`)) {
+                                        const sceneFolderId = s.folder.replace(`compendium-${pack.collection}-`, "");
+                                        return sceneFolderId === targetFolderId;
+                                    }
+                                    return false;
+                                });
+                            }
                         } else if (this.activeFolderId === pack.collection) {
-                            scenes = scenes.filter(s => s.folder === pack.collection);
+                            if (this.recursiveFolderView) {
+                                const allowed = this._collectDescendantFolderIds(pack.collection, allFolders);
+                                scenes = scenes.filter(s => allowed.has(s.folder));
+                            } else {
+                                scenes = scenes.filter(s => s.folder === pack.collection);
+                            }
                         } else {
                             scenes = [];
                         }
@@ -457,7 +475,7 @@ export class ScenesLibrary extends Application {
     async buildHTML() {
         const data = await this.getData();
         const treeHTML = this.getFolderTreeRecursive(data.folders, data.scenes, null, 0, false);
-        const activeScenes = this.getActiveScenes(data.scenes);
+        const activeScenes = this.getActiveScenes(data.scenes, data.folders);
         
         const isCompendium = this.mode === 'compendium';
         
@@ -549,6 +567,7 @@ export class ScenesLibrary extends Application {
                 <button class="sb-btn ${btnDisabledClass} ${isCompendium ? 'hidden' : ''}" data-action="edit" title="${game.i18n.localize("SCENESLIBRARY.Rename")}"><i class="fas fa-pen"></i></button>
                 <button class="sb-btn ${btnDisabledClass} ${isCompendium ? 'hidden' : ''}" data-action="color" title="${game.i18n.localize("SCENESLIBRARY.FolderColor")}"><i class="fas fa-palette"></i></button>
                 <button class="sb-btn ${btnDisabledClass} ${isCompendium ? 'hidden' : ''}" data-action="delete" title="${game.i18n.localize("SCENESLIBRARY.DeleteFolder")}"><i class="fas fa-trash"></i></button>
+                <button type="button" class="sb-btn" id="module-settings" title="${game.i18n.localize("SCENESLIBRARY.ModuleSettingsTooltip")}"><i class="fas fa-cog"></i></button>
             </div>
         </div>
         
@@ -788,7 +807,28 @@ export class ScenesLibrary extends Application {
         return false;
     }
 
-    getActiveScenes(allScenes) {
+    /**
+     * Folder id + all descendant folder ids (same parent linkage as getFolderTreeRecursive).
+     * Scene `folder` values must match one of these ids to belong under `rootId`.
+     */
+    _collectDescendantFolderIds(rootId, folders) {
+        const ids = new Set([rootId]);
+        if (!folders?.length) return ids;
+        const queue = [rootId];
+        while (queue.length) {
+            const id = queue.shift();
+            for (const f of folders) {
+                const p = f.folder?.id ?? f.folder;
+                if (p === id && f.id && !ids.has(f.id)) {
+                    ids.add(f.id);
+                    queue.push(f.id);
+                }
+            }
+        }
+        return ids;
+    }
+
+    getActiveScenes(allScenes, folders) {
         let scenes = [];
         if (this.activeFolderId === "favorites") scenes = allScenes.filter(s => s.isFav);
         else if (this.activeFolderId === "all") scenes = allScenes;
@@ -799,7 +839,12 @@ export class ScenesLibrary extends Application {
             scenes.sort((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id));
         }
         else {
-            scenes = allScenes.filter(s => s.folder === this.activeFolderId);
+            if (folders?.length && this.recursiveFolderView) {
+                const allowed = this._collectDescendantFolderIds(this.activeFolderId, folders);
+                scenes = allScenes.filter(s => allowed.has(s.folder));
+            } else {
+                scenes = allScenes.filter(s => s.folder === this.activeFolderId);
+            }
         }
         
         if (this.sceneTerm) {
@@ -843,6 +888,31 @@ export class ScenesLibrary extends Application {
         return scenes;
     }
 
+    _openModuleSettings() {
+        const checked = this.recursiveFolderView;
+        new Dialog({
+            title: game.i18n.localize("SCENESLIBRARY.SettingsDialogTitle"),
+            content: `<form class="sl-settings-form"><label class="sl-settings-check"><input type="checkbox" name="recursive" ${checked ? "checked" : ""}/> ${game.i18n.localize("SCENESLIBRARY.RecursiveSubfolderScenes")}</label></form>`,
+            buttons: {
+                save: {
+                    icon: '<i class="fas fa-check"></i>',
+                    label: game.i18n.localize("SCENESLIBRARY.Save"),
+                    callback: async (html) => {
+                        const val = html.find('[name="recursive"]').is(":checked");
+                        this.recursiveFolderView = val;
+                        await this._saveRecursiveFolderView(val);
+                        this.render();
+                    }
+                },
+                cancel: {
+                    icon: '<i class="fas fa-times"></i>',
+                    label: game.i18n.localize("SCENESLIBRARY.BtnCancel")
+                }
+            },
+            default: "save"
+        }).render(true);
+    }
+
     async removeFromRecent(sceneId) {
         let list = this._loadRecent();
         const idx = list.indexOf(sceneId);
@@ -860,6 +930,8 @@ export class ScenesLibrary extends Application {
 
     activateListeners(html) {
         super.activateListeners(html);
+
+        html.find("#module-settings").click(() => this._openModuleSettings());
 
         const sidebarScroll = html.find("#sb-scroll");
         if (this.scrollTopSidebar > 0) sidebarScroll.scrollTop(this.scrollTopSidebar);
@@ -904,7 +976,7 @@ export class ScenesLibrary extends Application {
 
         html.find("#pagination-next").click(async (e) => {
             const data = await this.getData();
-            const activeScenes = this.getActiveScenes(data.scenes);
+            const activeScenes = this.getActiveScenes(data.scenes, data.folders);
             const totalPages = Math.ceil(activeScenes.length / this.scenesPerPage);
             if (this.currentPage < totalPages) {
                 this.currentPage++;
@@ -1136,7 +1208,7 @@ export class ScenesLibrary extends Application {
                     const cursorPosition = searchInput[0].selectionStart;
                     
                     const data = await this.getData();
-                    const activeScenes = this.getActiveScenes(data.scenes);
+                    const activeScenes = this.getActiveScenes(data.scenes, data.folders);
                     const gridElement = html.find("#scene-grid");
                     const paginationControls = html.find(".pagination-controls");
                     
@@ -1160,7 +1232,7 @@ export class ScenesLibrary extends Application {
                     if (newPaginationControls) {
                         const updatePaginationContent = async () => {
                             const data = await this.getData();
-                            const activeScenes = this.getActiveScenes(data.scenes);
+                            const activeScenes = this.getActiveScenes(data.scenes, data.folders);
                             const gridElement = html.find("#scene-grid");
                             const paginationControls = html.find(".pagination-controls");
                             
@@ -1182,7 +1254,7 @@ export class ScenesLibrary extends Application {
                                     });
                                     html.find("#pagination-next").off("click").on("click", async (e) => {
                                         const data = await this.getData();
-                                        const activeScenes = this.getActiveScenes(data.scenes);
+                                        const activeScenes = this.getActiveScenes(data.scenes, data.folders);
                                         const totalPages = Math.ceil(activeScenes.length / this.scenesPerPage);
                                         if (this.currentPage < totalPages) {
                                             this.currentPage++;
@@ -1202,7 +1274,7 @@ export class ScenesLibrary extends Application {
                                 });
                                 html.find("#pagination-next").off("click").on("click", async (e) => {
                                     const data = await this.getData();
-                                    const activeScenes = this.getActiveScenes(data.scenes);
+                                    const activeScenes = this.getActiveScenes(data.scenes, data.folders);
                                     const totalPages = Math.ceil(activeScenes.length / this.scenesPerPage);
                                     if (this.currentPage < totalPages) {
                                         this.currentPage++;
@@ -1221,7 +1293,7 @@ export class ScenesLibrary extends Application {
                         
                         html.find("#pagination-next").off("click").on("click", async (e) => {
                             const data = await this.getData();
-                            const activeScenes = this.getActiveScenes(data.scenes);
+                            const activeScenes = this.getActiveScenes(data.scenes, data.folders);
                             const totalPages = Math.ceil(activeScenes.length / this.scenesPerPage);
                             if (this.currentPage < totalPages) {
                                 this.currentPage++;
