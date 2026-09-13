@@ -1,6 +1,334 @@
-export class ScenesLibrary extends Application {
-    constructor() {
-        super();
+class MicroQuery {
+    constructor(elements) {
+        this.elements = Array.isArray(elements) ? elements : (elements ? [elements] : []);
+        this.length = this.elements.length;
+        for (let i = 0; i < this.elements.length; i++) {
+            this[i] = this.elements[i];
+        }
+    }
+
+    find(selector) {
+        const results = [];
+        for (const el of this.elements) {
+            if (el && el.querySelectorAll) {
+                results.push(...el.querySelectorAll(selector));
+            }
+        }
+        return new MicroQuery([...new Set(results)]);
+    }
+
+    closest(selector) {
+        const results = [];
+        for (const el of this.elements) {
+            const found = el && el.closest ? el.closest(selector) : null;
+            if (found) results.push(found);
+        }
+        return new MicroQuery([...new Set(results)]);
+    }
+
+    parent() {
+        const results = [];
+        for (const el of this.elements) {
+            if (el && el.parentElement) results.push(el.parentElement);
+        }
+        return new MicroQuery([...new Set(results)]);
+    }
+
+    children(selector) {
+        const results = [];
+        for (const el of this.elements) {
+            for (const child of el?.children || []) {
+                if (!selector || (child.matches && child.matches(selector))) {
+                    results.push(child);
+                }
+            }
+        }
+        return new MicroQuery([...new Set(results)]);
+    }
+
+    each(fn) {
+        this.elements.forEach((el, i) => fn.call(el, i, el));
+        return this;
+    }
+
+    data(key, val) {
+        if (!this.elements.length) return undefined;
+        const camelKey = key ? key.replace(/-([a-z])/g, (_, c) => c.toUpperCase()) : "";
+        if (val !== undefined) {
+            for (const el of this.elements) {
+                if (el && el.dataset) el.dataset[camelKey] = val;
+            }
+            return this;
+        }
+        return this.elements[0]?.dataset?.[camelKey] ?? this.elements[0]?.dataset?.[key];
+    }
+
+    val(val) {
+        if (val !== undefined) {
+            for (const el of this.elements) {
+                if (el && "value" in el) el.value = val;
+            }
+            return this;
+        }
+        return this.elements[0]?.value ?? "";
+    }
+
+    is(selector) {
+        if (!this.elements.length) return false;
+        const el = this.elements[0];
+        if (!el) return false;
+        if (selector === ":checked") return Boolean(el.checked);
+        if (selector === ":hover") return Boolean(el.matches && el.matches(":hover"));
+        return Boolean(el.matches && el.matches(selector));
+    }
+
+    prop(name, val) {
+        if (val !== undefined) {
+            for (const el of this.elements) {
+                if (el) el[name] = val;
+            }
+            return this;
+        }
+        return this.elements[0]?.[name];
+    }
+
+    attr(name, val) {
+        if (val !== undefined) {
+            for (const el of this.elements) el?.setAttribute?.(name, String(val));
+            return this;
+        }
+        return this.elements[0]?.getAttribute?.(name);
+    }
+
+    scrollTop(val) {
+        if (val !== undefined) {
+            for (const el of this.elements) {
+                if (el) el.scrollTop = val;
+            }
+            return this;
+        }
+        return this.elements[0]?.scrollTop ?? 0;
+    }
+
+    css(prop, val) {
+        if (typeof prop === "object") {
+            for (const el of this.elements) {
+                if (el?.style) Object.assign(el.style, prop);
+            }
+            return this;
+        }
+        if (val !== undefined) {
+            for (const el of this.elements) {
+                if (el?.style) el.style[prop] = val;
+            }
+            return this;
+        }
+        return this.elements[0]?.style?.[prop];
+    }
+
+    on(event, fn) {
+        for (const el of this.elements) {
+            el?.addEventListener?.(event, fn);
+        }
+        return this;
+    }
+
+    off(event, fn) {
+        for (const el of this.elements) {
+            el?.removeEventListener?.(event, fn);
+        }
+        return this;
+    }
+
+    click(fn) {
+        if (fn) return this.on("click", fn);
+        for (const el of this.elements) el?.click?.();
+        return this;
+    }
+
+    remove() {
+        for (const el of this.elements) el?.remove?.();
+        return this;
+    }
+
+    append(child) {
+        for (const el of this.elements) {
+            if (!el) continue;
+            if (typeof child === "string") {
+                el.insertAdjacentHTML("beforeend", child);
+            } else if (child instanceof MicroQuery) {
+                for (const c of child.elements) el.appendChild(c);
+            } else if (isNode(child)) {
+                el.appendChild(child);
+            }
+        }
+        return this;
+    }
+
+    prepend(child) {
+        for (const el of this.elements) {
+            if (!el) continue;
+            if (typeof child === "string") {
+                el.insertAdjacentHTML("afterbegin", child);
+            } else if (child instanceof MicroQuery) {
+                for (const c of child.elements) el.insertBefore(c, el.firstChild);
+            } else if (isNode(child)) {
+                el.insertBefore(child, el.firstChild);
+            }
+        }
+        return this;
+    }
+
+    html(str) {
+        if (str !== undefined) {
+            for (const el of this.elements) {
+                if (el) el.innerHTML = str;
+            }
+            return this;
+        }
+        return this.elements[0]?.innerHTML ?? "";
+    }
+
+    empty() {
+        for (const el of this.elements) {
+            if (el) el.innerHTML = "";
+        }
+        return this;
+    }
+
+    addClass(cls) {
+        const classes = String(cls).split(/\s+/).filter(Boolean);
+        for (const el of this.elements) {
+            if (el?.classList) el.classList.add(...classes);
+        }
+        return this;
+    }
+
+    removeClass(cls) {
+        const classes = String(cls).split(/\s+/).filter(Boolean);
+        for (const el of this.elements) {
+            if (el?.classList) el.classList.remove(...classes);
+        }
+        return this;
+    }
+
+    toggleClass(cls) {
+        for (const el of this.elements) {
+            if (el?.classList) el.classList.toggle(cls);
+        }
+        return this;
+    }
+
+    hasClass(cls) {
+        return this.elements.some(el => el?.classList?.contains(cls));
+    }
+
+    show() {
+        for (const el of this.elements) {
+            if (el?.style) el.style.display = "";
+        }
+        return this;
+    }
+
+    hide() {
+        for (const el of this.elements) {
+            if (el?.style) el.style.display = "none";
+        }
+        return this;
+    }
+
+    focus() {
+        this.elements[0]?.focus?.();
+        return this;
+    }
+}
+
+const isNode = (o) => typeof Node !== "undefined" && o instanceof Node;
+const isHTMLElement = (o) => typeof HTMLElement !== "undefined" && o instanceof HTMLElement;
+
+function safeQuery(selector) {
+    if (globalThis.jQuery) return globalThis.jQuery(selector);
+    if (globalThis.$ && typeof globalThis.$ === "function") return globalThis.$(selector);
+    if (!selector) return new MicroQuery([]);
+    if (selector instanceof MicroQuery) return selector;
+    if (isNode(selector) || selector === globalThis.window || selector === globalThis.document) return new MicroQuery([selector]);
+    if (Array.isArray(selector)) return new MicroQuery(selector);
+    if (typeof selector === "string") {
+        if (selector.trim().startsWith("<")) {
+            if (typeof document !== "undefined") {
+                const temp = document.createElement("template");
+                temp.innerHTML = selector.trim();
+                return new MicroQuery(Array.from(temp.content.children));
+            }
+            return new MicroQuery([]);
+        }
+        if (typeof document !== "undefined") {
+            return new MicroQuery(Array.from(document.querySelectorAll(selector)));
+        }
+    }
+    return new MicroQuery([]);
+}
+
+const $ = safeQuery;
+
+export class AppDialog {
+    static async show(config, options = {}) {
+        const title = config.title;
+        const content = config.content;
+        const classes = [...(config.classes || []), ...(options.classes || [])];
+        const buttons = config.buttons || {};
+        const defaultBtn = config.default;
+        const renderCb = config.render;
+
+        if (foundry?.applications?.api?.DialogV2) {
+            const DialogV2 = foundry.applications.api.DialogV2;
+            const buttonsList = [];
+            for (const [key, btn] of Object.entries(buttons)) {
+                let iconClass = btn.icon;
+                const match = btn.icon?.match(/class="([^"]+)"/);
+                if (match) iconClass = match[1];
+
+                buttonsList.push({
+                    action: key,
+                    label: btn.label,
+                    icon: iconClass,
+                    default: key === defaultBtn,
+                    callback: (event, button, dialog) => {
+                        if (btn.callback) return btn.callback($(dialog.element));
+                    }
+                });
+            }
+            const dlg = new DialogV2({
+                window: { title: title },
+                classes: classes.length ? classes : ["dialog"],
+                content: content,
+                buttons: buttonsList
+            });
+            if (renderCb) {
+                const origOnRender = dlg._onRender.bind(dlg);
+                dlg._onRender = function(context, renderOptions) {
+                    origOnRender(context, renderOptions);
+                    renderCb($(this.element));
+                };
+            }
+            return dlg.render({ force: true });
+        } else if (typeof Dialog !== "undefined") {
+            return new Dialog(config, options).render(true);
+        } else {
+            console.error("[ScenesLibrary] No dialog implementation found");
+        }
+    }
+}
+
+const BaseApplication = (typeof foundry !== "undefined" && foundry.applications?.api?.ApplicationV2)
+    ? foundry.applications.api.ApplicationV2
+    : (typeof Application !== "undefined" ? Application : class DummyApplication {});
+
+const isApplicationV2 = Boolean(typeof foundry !== "undefined" && foundry.applications?.api?.ApplicationV2 && BaseApplication === foundry.applications.api.ApplicationV2);
+
+export class ScenesLibrary extends BaseApplication {
+    constructor(options = {}) {
+        super(options);
         this.activeFolderId = "favorites"; 
         this.sidebarWidth = 280;
         this.mode = "world";
@@ -55,7 +383,7 @@ export class ScenesLibrary extends Application {
         Hooks.on("updateScene", this._onFolderChange);
     }
 
-    async close(options) {
+    async close(options = {}) {
         Hooks.off("createFolder", this._onFolderChange);
         Hooks.off("updateFolder", this._onFolderChange);
         Hooks.off("deleteFolder", this._onFolderChange);
@@ -67,8 +395,26 @@ export class ScenesLibrary extends Application {
         }
         return super.close(options);
     }
+
+    static DEFAULT_OPTIONS = {
+        id: "gm-scenes-library-window",
+        classes: ["gm-observer-app"],
+        tag: "div",
+        window: {
+            title: "SCENESLIBRARY.Title",
+            icon: "fa-solid fa-map",
+            resizable: true,
+            minimizable: true
+        },
+        position: {
+            width: 1150,
+            height: 800
+        }
+    };
+
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        const base = (typeof Application !== "undefined" && super.defaultOptions) ? super.defaultOptions : {};
+        return foundry.utils.mergeObject(base, {
             id: "gm-scenes-library-window",
             title: game.i18n.localize("SCENESLIBRARY.Title"),
             template: "templates/hud/hud.html", 
@@ -81,14 +427,43 @@ export class ScenesLibrary extends Application {
         });
     }
 
-    async render(force, options) {
-        if (this.element && this.element.length) {
-            const sb = this.element.find("#sb-scroll");
-            const gl = this.element.find("#scene-grid");
-            if (sb.length) this.scrollTopSidebar = sb.scrollTop();
-            if (gl.length) this.scrollTopGallery = gl.scrollTop();
+    get title() {
+        return game.i18n.localize("SCENESLIBRARY.Title") || "Scenes Library";
+    }
+
+    async render(options = {}, legacyOptions = {}) {
+        let renderOptions = options;
+        if (typeof options === "boolean") {
+            renderOptions = { force: options, ...legacyOptions };
         }
-        return super.render(force, options);
+        const el = isHTMLElement(this.element) ? this.element : (this.element?.[0] || null);
+        if (el) {
+            const sb = el.querySelector?.("#sb-scroll");
+            const gl = el.querySelector?.("#scene-grid");
+            if (sb) this.scrollTopSidebar = sb.scrollTop;
+            if (gl) this.scrollTopGallery = gl.scrollTop;
+        }
+        if (isApplicationV2) {
+            return super.render(renderOptions);
+        }
+        return super.render(typeof options === "boolean" ? options : Boolean(renderOptions?.force), renderOptions);
+    }
+
+    async _renderHTML(context, options) {
+        return await this.buildHTML();
+    }
+
+    _replaceHTML(result, content, options) {
+        if (typeof result === "string") {
+            content.innerHTML = result;
+        } else if (isHTMLElement(result)) {
+            content.replaceChildren(result);
+        }
+    }
+
+    _onRender(context, options) {
+        super._onRender?.(context, options);
+        this.activateListeners($(this.element));
     }
 
     async _renderInner(data) {
@@ -890,7 +1265,7 @@ export class ScenesLibrary extends Application {
 
     _openModuleSettings() {
         const checked = this.recursiveFolderView;
-        new Dialog({
+        AppDialog.show({
             title: game.i18n.localize("SCENESLIBRARY.SettingsDialogTitle"),
             content: `<form class="sl-settings-form"><label class="sl-settings-check"><input type="checkbox" name="recursive" ${checked ? "checked" : ""}/> ${game.i18n.localize("SCENESLIBRARY.RecursiveSubfolderScenes")}</label></form>`,
             buttons: {
@@ -910,7 +1285,7 @@ export class ScenesLibrary extends Application {
                 }
             },
             default: "save"
-        }).render(true);
+        });
     }
 
     async removeFromRecent(sceneId) {
@@ -929,7 +1304,7 @@ export class ScenesLibrary extends Application {
     }
 
     activateListeners(html) {
-        super.activateListeners(html);
+        if (super.activateListeners) super.activateListeners(html);
 
         html.find("#module-settings").click(() => this._openModuleSettings());
 
@@ -1003,7 +1378,7 @@ export class ScenesLibrary extends Application {
                     break;
                 case "delete":
                     if (currentFolder) {
-                        new Dialog({
+                        AppDialog.show({
                             title: game.i18n.localize("SCENESLIBRARY.DeleteFolderTitle"),
                             content: `
                                 <p>${game.i18n.format("SCENESLIBRARY.DeleteFolderConfirm", {name: currentFolder.name})}</p>
@@ -1026,12 +1401,12 @@ export class ScenesLibrary extends Application {
                                 }
                             },
                             default: "yes"
-                        }).render(true);
+                        });
                     }
                     break;
                 case "color":
                     if (currentFolder) {
-                        new Dialog({
+                        AppDialog.show({
                             title: game.i18n.localize("SCENESLIBRARY.ColorTitle") + currentFolder.name,
                             content: `
                                 <div class="form-group">
@@ -1052,7 +1427,7 @@ export class ScenesLibrary extends Application {
                                 }
                             },
                             default: "save"
-                        }).render(true);
+                        });
                     }
                     break;
             }
@@ -1068,8 +1443,8 @@ export class ScenesLibrary extends Application {
 
         html.find(".sb-resize-handle").on("mousedown", (e) => {
             e.preventDefault();
-            const sidebarEl = this.element.find(".sb-sidebar")[0];
-            const startX = e.originalEvent.clientX;
+            const sidebarEl = $(this.element).find(".sb-sidebar")[0];
+            const startX = e.clientX ?? e.originalEvent?.clientX ?? 0;
             const startWidth = sidebarEl.getBoundingClientRect().width;
 
             const doDrag = (moveEv) => {
@@ -1520,7 +1895,7 @@ export class ScenesLibrary extends Application {
         });
         
         html.find("#clear-recent").click(async () => {
-            new Dialog({
+            AppDialog.show({
                 title: game.i18n.localize("SCENESLIBRARY.ClearRecentTitle"),
                 content: `<p>${game.i18n.localize("SCENESLIBRARY.ClearRecentConfirm")}</p>`,
                 buttons: {
@@ -1528,7 +1903,7 @@ export class ScenesLibrary extends Application {
                     no: { icon: '<i class="fas fa-times"></i>', label: game.i18n.localize("SCENESLIBRARY.No") }
                 },
                 default: "no"
-            }).render(true);
+            });
         });
 
         html.find(".action-remove-recent").click(async (e) => {
@@ -1790,13 +2165,15 @@ export class ScenesLibrary extends Application {
     initDragDrop(html) {
         html.find('.cd-card').attr('draggable', true).on('dragstart', (ev) => {
             ev.stopPropagation();
-            ev.originalEvent.dataTransfer.setData("application/json", JSON.stringify({ type: "Scene", id: ev.currentTarget.dataset.id }));
+            const dt = ev.dataTransfer || ev.originalEvent?.dataTransfer;
+            if (dt) dt.setData("application/json", JSON.stringify({ type: "Scene", id: ev.currentTarget.dataset.id }));
         });
         html.find('.draggable-folder').attr('draggable', true).on('dragstart', (ev) => {
             ev.stopPropagation();
             const id = ev.currentTarget.dataset.folderId;
             if(id==="root") return false;
-            ev.originalEvent.dataTransfer.setData("application/json", JSON.stringify({ type: "Folder", id: id }));
+            const dt = ev.dataTransfer || ev.originalEvent?.dataTransfer;
+            if (dt) dt.setData("application/json", JSON.stringify({ type: "Folder", id: id }));
         });
         html.find('.sb-row').on('dragover', (ev) => {
             ev.preventDefault(); ev.currentTarget.classList.add("drag-over");
@@ -1804,7 +2181,8 @@ export class ScenesLibrary extends Application {
             ev.currentTarget.classList.remove("drag-over");
         }).on('drop', async (ev) => {
             ev.preventDefault(); ev.currentTarget.classList.remove("drag-over");
-            const raw = ev.originalEvent.dataTransfer.getData("application/json");
+            const dt = ev.dataTransfer || ev.originalEvent?.dataTransfer;
+            const raw = dt ? dt.getData("application/json") : null;
             if (!raw) return;
             const data = JSON.parse(raw);
             const targetId = ev.currentTarget.dataset.id;
@@ -1871,7 +2249,7 @@ export class ScenesLibrary extends Application {
         </div>
         `;
 
-        new Dialog({
+        AppDialog.show({
             title: game.i18n.localize("SCENESLIBRARY.CreateTitle"),
             content: dialogContent,
             buttons: {
@@ -1975,7 +2353,7 @@ export class ScenesLibrary extends Application {
                 });
 
                 imgInput.on("paste", async (e) => {
-                    const items = (e.originalEvent.clipboardData || e.clipboardData).items;
+                    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items || [];
                     for (const item of items) {
                         if (item.kind === 'file' && item.type.startsWith('image/')) {
                             e.preventDefault();
@@ -1988,7 +2366,7 @@ export class ScenesLibrary extends Application {
             }
         }, {
             classes: ["dialog", "so-dialog"]
-        }).render(true);
+        });
     }
 
     async _uploadClipboardImage(blob, inputEl) {
@@ -2129,7 +2507,7 @@ export class ScenesLibrary extends Application {
         </div>
         `;
 
-        new Dialog({
+        AppDialog.show({
             title: game.i18n.format("SCENESLIBRARY.EditTagsTitle", {name: scene.name}),
             content: dialogContent,
             classes: ["dialog", "so-dialog"],
@@ -2283,6 +2661,6 @@ export class ScenesLibrary extends Application {
                     $(e.currentTarget).closest(".tag-editor-tag").remove();
                 });
             }
-        }).render(true);
+        });
     }
 }
